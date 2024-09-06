@@ -1,5 +1,7 @@
 package main
 
+import "math/rand"
+
 /**
 题目描述：
 给你一个整数数组 nums，请你将该数组升序排列。
@@ -16,43 +18,58 @@ package main
 3.递归地对左右两个子数组进行相同的操作
 */
 
+// sortArray 是主要的排序函数
 func sortArray(nums []int) []int {
-	quickSort(nums, 0, len(nums)-1)
+	quick(nums, 0, len(nums)-1) // 调用快速排序函数
 	return nums
 }
 
-func quickSort(nums []int, low, high int) {
-	if low < high {
-		// 获取分区点
-		pivotIndex := partition(nums, low, high)
-
-		// 递归排序左边部分
-		quickSort(nums, low, pivotIndex-1)
-
-		// 递归排序右边部分
-		quickSort(nums, pivotIndex+1, high)
+// quick 函数实现快速排序的递归过程
+func quick(arr []int, i, j int) {
+	// 如果左边界大于等于右边界,说明已经排序完成,直接返回
+	if i >= j {
+		return
 	}
+
+	// 对数组进行分区,返回基准元素的最终位置
+	mid := partition(arr, i, j)
+
+	quick(arr, i, mid-1) // 递归排序左半部分
+	quick(arr, mid+1, j) // 递归排序右半部分
 }
 
-func partition(nums []int, low, high int) int {
-	// 选择最后一个元素作为基准（pivot）
-	pivot := nums[high]
+// partition 函数实现数组的分区操作
+func partition(arr []int, i int, j int) int {
+	// 随机选择一个元素作为基准,这有助于避免最坏情况的时间复杂度
+	p := rand.Intn(j-i+1) + i
+	nums := arr
 
-	// i 表示小于等于pivot的元素的最后位置,初始化一个虚拟的。
-	i := low - 1
+	// 将基准元素交换到数组的开始位置
+	nums[i], nums[p] = nums[p], nums[i]
 
-	// 遍历low到high-1的元素
-	for j := low; j < high; j++ {
-		// 如果当前元素小于等于pivot
-		if nums[j] <= pivot {
-			i++
-			// 交换元素
+	for i < j {
+		// 从右向左找第一个小于 nums[i] 的元素
+		for nums[i] < nums[j] && i < j {
+			j--
+		}
+
+		// 将找到的元素交换到左侧
+		if i < j {
 			nums[i], nums[j] = nums[j], nums[i]
+			i++
+		}
+
+		// 从左向右找第一个大于等于 nums[j] 的元素
+		for nums[i] < nums[j] && i < j {
+			i++
+		}
+
+		// 将找到的元素交换到右侧
+		if i < j {
+			nums[i], nums[j] = nums[j], nums[i]
+			j--
 		}
 	}
 
-	// 将基准元素放到正确的位置
-	nums[i+1], nums[high] = nums[high], nums[i+1]
-
-	return i + 1
+	return i
 }
